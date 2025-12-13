@@ -49,6 +49,7 @@ export default function JiumozhiGame({ onExit }: JiumozhiGameProps) {
 
   const handleConsultMaster = async () => {
     setIsLoadingWisdom(true);
+    // Now uses local service, no API key needed
     const text = await getMartialArtsWisdom(finalScore, stats.level);
     setWisdom(text);
     setIsLoadingWisdom(false);
@@ -76,7 +77,7 @@ export default function JiumozhiGame({ onExit }: JiumozhiGameProps) {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gray-900 text-white font-sans">
       
-      {/* Background Music - Using a royalty free Asian/Electronic track suitable for action */}
+      {/* Background Music */}
       <audio ref={audioRef} loop src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" />
 
       {/* Top Right Controls */}
