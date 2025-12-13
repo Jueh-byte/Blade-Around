@@ -221,7 +221,7 @@ export default function JiumozhiGame({ onExit }: JiumozhiGameProps) {
                </div>
             </div>
             <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 mb-2">
-              Jiumozhi's Fireblade
+              Fireblade
             </h1>
             <p className="text-gray-300 mb-8 text-sm">
               "With the Fireblade, I shall cleanse the Jianghu!"<br/>

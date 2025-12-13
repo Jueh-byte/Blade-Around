@@ -75,7 +75,7 @@ export default function App() {
               <Gamepad2 size={24} className="text-white" />
             </div>
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-              StressRelief.io
+              AhhhGames.cc
             </span>
           </div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-400">
@@ -95,12 +95,12 @@ export default function App() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/20 blur-[100px] rounded-full pointer-events-none" />
           <h1 className="relative text-5xl md:text-7xl font-black tracking-tight mb-6">
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400">
-              Relax. Play.
+              Ahhh...
             </span>
-            <span className="block mt-2">Release the Stress.</span>
+            <span className="block mt-2">Instant Stress Relief.</span>
           </h1>
           <p className="relative text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-            A curated collection of satisfying, high-energy, and calming browser games designed to help you decompress in minutes.
+            Welcome to <span className="text-white font-bold">AhhhGames.cc</span>. A curated collection of satisfying, high-energy, and calming browser games designed to help you decompress in minutes.
           </p>
           <div className="flex items-center justify-center gap-8 text-gray-500 text-sm">
              <div className="flex items-center gap-2"><Sparkles size={16} /> Instant Play</div>
@@ -116,10 +116,10 @@ export default function App() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Game 1: Jiumozhi */}
+          {/* Game 1: Fireblade */}
           <GameCard 
             id="jiumozhi"
-            title="Jiumozhi's Fireblade"
+            title="Fireblade"
             description="Spin flaming blades, fend off endless waves of enemies, and seek wisdom from the legendary monk in this high-octane survival game."
             color="from-red-500 to-orange-600"
             icon={<Flame size={32} />}
@@ -155,7 +155,7 @@ export default function App() {
 
         {/* Footer */}
         <div className="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
-            <p>&copy; 2024 StressRelief.io Arcade. Built with Gemini & React.</p>
+            <p>&copy; 2024 AhhhGames.cc. Built with Gemini & React.</p>
         </div>
       </main>
     </div>
