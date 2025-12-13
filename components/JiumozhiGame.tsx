@@ -74,7 +74,7 @@ export default function JiumozhiGame({ onExit }: JiumozhiGameProps) {
   const xpPercent = Math.min(100, (stats.xp / (stats.level * 100)) * 100);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-gray-900 text-white font-sans">
+    <div className="relative w-full h-screen overflow-hidden bg-gray-900 text-white font-sans">
       
       {/* Background Music - Using a royalty free Asian/Electronic track suitable for action */}
       <audio ref={audioRef} loop src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" />
