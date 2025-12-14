@@ -4,7 +4,10 @@ import { Player, Enemy, Gem, Particle, DamageText, Position, EnemyType, Pickup, 
 // --- Audio System (Synthesizer) ---
 const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-const playSound = (type: 'hit' | 'swing' | 'levelUp' | 'roar' | 'pickup' | 'deflect' | 'spawn') => {
+// Modified to accept muted status
+const playSound = (type: 'hit' | 'swing' | 'levelUp' | 'roar' | 'pickup' | 'deflect' | 'spawn', muted: boolean) => {
+  if (muted) return; // Immediate exit if muted
+  
   if (audioCtx.state === 'suspended') audioCtx.resume();
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -81,6 +84,7 @@ const JIUMOZHI_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000
 
 interface GameCanvasProps {
   isPlaying: boolean;
+  muted: boolean;
   onGameOver: (stats: { score: number; level: number }) => void;
   onUpdateStats: (hp: number, maxHp: number, mp: number, maxMp: number, xp: number, level: number, score: number, combo: number) => void;
   joystickInput: { x: number; y: number };
@@ -88,13 +92,19 @@ interface GameCanvasProps {
   onSkillUsed: () => void;
 }
 
-const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdateStats, joystickInput, triggerSkill, onSkillUsed }) => {
+const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, muted, onGameOver, onUpdateStats, joystickInput, triggerSkill, onSkillUsed }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(0);
-  const lastFrameTimeRef = useRef<number>(0); // Store last frame timestamp properly
+  const lastFrameTimeRef = useRef<number>(0); 
   const scoreRef = useRef(0);
-  const timeRef = useRef(0); // Total game time
+  const timeRef = useRef(0); 
   const playerImageRef = useRef<HTMLImageElement | null>(null);
+  
+  // Use a ref for muted so the game loop (which is a closure) always sees the latest value
+  const mutedRef = useRef(muted);
+  useEffect(() => {
+    mutedRef.current = muted;
+  }, [muted]);
 
   useEffect(() => {
     const img = new Image();
@@ -114,9 +124,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
     maxMp: 100,
     xp: 0,
     level: 1,
-    speed: 200, // Pixels per second
+    speed: 200, 
     bladeCount: 1,
-    bladeSpeed: 3.5, // Radians per second
+    bladeSpeed: 3.5, 
     bladeDamage: 35,
     bladeSize: 60,
     combo: 0,
@@ -134,8 +144,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
   const lastSpawnTime = useRef(0);
   const roarEffectRef = useRef({ active: false, radius: 0, alpha: 0 });
 
-  const SPAWN_RATE = 500; // ms
-  const COMBO_WINDOW = 3.0; // seconds
+  const SPAWN_RATE = 500; 
+  const COMBO_WINDOW = 3.0; 
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { keysPressed.current[e.code] = true; };
@@ -151,7 +161,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
   const spawnEnemy = useCallback((canvasWidth: number, canvasHeight: number) => {
     const p = playerRef.current;
     const angle = Math.random() * Math.PI * 2;
-    // Spawn slightly closer so user sees them immediately
     const dist = (Math.min(canvasWidth, canvasHeight) / 2) + 100;
     
     const x = p.x + Math.cos(angle) * dist;
@@ -161,8 +170,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
     let type = EnemyType.NORMAL;
     let radius = 22;
     let hp = 40 + (scoreRef.current * 0.2);
-    let speed = 100; // px per second
-    let sprite = '🥷'; // Ninja
+    let speed = 100; 
+    let sprite = '🥷'; 
     let damage = 10;
 
     if (rand > 0.9) {
@@ -170,14 +179,14 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
       radius = 35;
       hp = 150 + (scoreRef.current * 0.5);
       speed = 60;
-      sprite = '👹'; // Oni
+      sprite = '👹'; 
       damage = 20;
     } else if (rand > 0.75) {
       type = EnemyType.FAST;
       radius = 18;
       hp = 25 + (scoreRef.current * 0.1);
       speed = 180;
-      sprite = '👺'; // Goblin
+      sprite = '👺'; 
       damage = 5;
     }
 
@@ -199,7 +208,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
 
   const spawnPickup = (x: number, y: number) => {
     const rand = Math.random();
-    // Increased drop rate for fun
     if (rand > 0.2) return; 
 
     let type = PickupType.HEAL;
@@ -225,7 +233,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
         y,
         radius: Math.random() * 4 + 2,
         type: 'particle',
-        vx: (Math.random() - 0.5) * 300, // Velocity in px/sec
+        vx: (Math.random() - 0.5) * 300, 
         vy: (Math.random() - 0.5) * 300,
         life: 0.5 + Math.random() * 0.5,
         maxLife: 1.0,
@@ -251,7 +259,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
     if (p.mp < 30) return; 
 
     p.mp -= 30;
-    playSound('roar');
+    playSound('roar', mutedRef.current);
     roarEffectRef.current = { active: true, radius: 0, alpha: 1.0 };
     
     const range = 400;
@@ -273,7 +281,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
     if (!isPlaying) return;
 
     const p = playerRef.current;
-    const dtSec = deltaTime / 1000; // Convert ms to seconds
+    const dtSec = deltaTime / 1000; 
     timeRef.current += deltaTime;
 
     // 1. Skill / MP
@@ -366,7 +374,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
         // Blade hitbox is the size of the blade
         if (distToBlade < (p.bladeSize * 0.6) + enemy.radius) {
             if (enemy.enemyType === EnemyType.TANK && enemy.stunned <= 0 && Math.random() < 0.3) {
-                playSound('deflect');
+                playSound('deflect', mutedRef.current);
                 showDamage(enemy.x, enemy.y, "BLOCK");
                 // Small knockback on block
                 const kAngle = Math.atan2(enemy.y - p.y, enemy.x - p.x);
@@ -381,7 +389,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
             hit = true;
             createExplosion(enemy.x, enemy.y, '#f59e0b', 5);
             showDamage(enemy.x, enemy.y, Math.floor(dmg), p.combo > 10);
-            playSound('hit');
+            playSound('hit', mutedRef.current);
             
             p.combo++;
             p.comboTimer = COMBO_WINDOW;
@@ -392,7 +400,6 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
             enemy.x += Math.cos(kAngle) * force;
             enemy.y += Math.sin(kAngle) * force;
             
-            // Only hit by one blade per frame to prevent insta-gib
             break; 
         }
       }
@@ -421,7 +428,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
         item.life -= dtSec;
         const dist = Math.hypot(p.x - item.x, p.y - item.y);
         if (dist < p.radius + item.radius + 10) {
-            playSound('pickup');
+            playSound('pickup', mutedRef.current);
             if (item.pickupType === PickupType.HEAL) {
                 p.hp = Math.min(p.maxHp, p.hp + 40);
                 showDamage(p.x, p.y - 50, "❤️ HEAL", true);
@@ -453,7 +460,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ isPlaying, onGameOver, onUpdate
                 p.xp = 0;
                 p.hp = p.maxHp;
                 p.bladeDamage += 5;
-                playSound('levelUp');
+                playSound('levelUp', mutedRef.current);
                 showDamage(p.x, p.y - 80, "LEVEL UP!", true);
                 createExplosion(p.x, p.y, '#fbbf24', 30);
             }

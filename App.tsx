@@ -23,16 +23,18 @@ const Toast: React.FC<ToastProps> = ({ message, onClose }) => {
   if (!message) return null;
 
   return (
-    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in px-4 w-full max-w-sm">
-      <div className="bg-gray-800/90 backdrop-blur-md border border-purple-500/50 text-white px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center gap-3">
-        <div className="bg-purple-500/20 p-2 rounded-full text-purple-300">
+    // Updated Positioning: Fixed near top, centered horizontally using left-0 right-0 mx-auto
+    // Added width constraint (w-[90%]) so it doesn't touch screen edges on mobile
+    <div className="fixed top-24 left-0 right-0 mx-auto w-[90%] max-w-sm z-50 animate-fade-in flex justify-center pointer-events-none">
+      <div className="bg-gray-800/90 backdrop-blur-md border border-purple-500/50 text-white px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center gap-3 w-full pointer-events-auto">
+        <div className="bg-purple-500/20 p-2 rounded-full text-purple-300 shrink-0">
            <AlertCircle size={20} />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
             <p className="font-bold text-sm">Coming Soon!</p>
-            <p className="text-xs text-gray-400">{message}</p>
+            <p className="text-xs text-gray-400 truncate">{message}</p>
         </div>
-        <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
+        <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors shrink-0">
           <X size={16} />
         </button>
       </div>
@@ -267,7 +269,7 @@ export default function App() {
 
         {/* Footer */}
         <div className="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
-            <p>&copy; 2024 AhhhGames.cc. Built with Gemini & React.</p>
+            <p>&copy; 2025 AhhhGames.cc.</p>
         </div>
       </main>
     </div>

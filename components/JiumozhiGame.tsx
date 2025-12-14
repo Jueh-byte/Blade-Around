@@ -105,6 +105,7 @@ export default function JiumozhiGame({ onExit }: JiumozhiGameProps) {
         {(gameState === GameState.PLAYING || gameState === GameState.GAME_OVER) && (
           <GameCanvas 
             isPlaying={gameState === GameState.PLAYING}
+            muted={muted}
             onGameOver={handleGameOver}
             onUpdateStats={(hp, maxHp, mp, maxMp, xp, level, score, combo) => setStats({ hp, maxHp, mp, maxMp, xp, level, score, combo })}
             joystickInput={joystickInput}
