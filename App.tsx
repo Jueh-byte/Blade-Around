@@ -1,9 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import JiumozhiGame from './components/JiumozhiGame';
-import { Gamepad2, Sparkles, Trophy, Zap, Clock, Star, Flame } from 'lucide-react';
+import { Gamepad2, Sparkles, Trophy, Zap, Clock, Star, Flame, Menu, X, Info, AlertCircle } from 'lucide-react';
 
 type GameId = 'jiumozhi' | 'bubble_wrap' | 'zen_garden' | null;
 
+// --- Toast Component ---
+interface ToastProps {
+  message: string | null;
+  onClose: () => void;
+}
+
+const Toast: React.FC<ToastProps> = ({ message, onClose }) => {
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, onClose]);
+
+  if (!message) return null;
+
+  return (
+    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in px-4 w-full max-w-sm">
+      <div className="bg-gray-800/90 backdrop-blur-md border border-purple-500/50 text-white px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] flex items-center gap-3">
+        <div className="bg-purple-500/20 p-2 rounded-full text-purple-300">
+           <AlertCircle size={20} />
+        </div>
+        <div className="flex-1">
+            <p className="font-bold text-sm">Coming Soon!</p>
+            <p className="text-xs text-gray-400">{message}</p>
+        </div>
+        <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
+          <X size={16} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- GameCard Component ---
 interface GameCardProps {
   id: GameId;
   title: string;
@@ -13,12 +50,13 @@ interface GameCardProps {
   tags: string[];
   active?: boolean;
   onClick: (id: GameId) => void;
+  onInactiveClick: () => void;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ id, title, description, color, icon, tags, active = true, onClick }) => (
+const GameCard: React.FC<GameCardProps> = ({ id, title, description, color, icon, tags, active = true, onClick, onInactiveClick }) => (
   <div 
-    onClick={() => active && onClick(id)}
-    className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gray-800 transition-all duration-300 ${active ? 'cursor-pointer hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)]' : 'opacity-60 grayscale cursor-not-allowed'}`}
+    onClick={() => active ? onClick(id) : onInactiveClick()}
+    className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-gray-800 transition-all duration-300 ${active ? 'cursor-pointer hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)]' : 'cursor-pointer opacity-75 hover:opacity-90'}`}
   >
     {/* Background Gradient */}
     <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-10 group-hover:opacity-20 transition-opacity`} />
@@ -58,8 +96,16 @@ const GameCard: React.FC<GameCardProps> = ({ id, title, description, color, icon
   </div>
 );
 
+// --- Main App ---
 export default function App() {
   const [activeGame, setActiveGame] = useState<GameId>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setIsMobileMenuOpen(false); // Close menu if open when clicking a link
+  };
 
   if (activeGame === 'jiumozhi') {
     return <JiumozhiGame onExit={() => setActiveGame(null)} />;
@@ -67,6 +113,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white font-sans selection:bg-purple-500/30">
+      
+      <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+
       {/* Header */}
       <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-[#0a0a0c]/80 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -78,16 +127,76 @@ export default function App() {
               AhhhGames.cc
             </span>
           </div>
+
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-400">
-            <a href="#" className="hover:text-white transition-colors">Games</a>
-            <a href="#" className="hover:text-white transition-colors">Leaderboards</a>
-            <a href="#" className="hover:text-white transition-colors">About</a>
+            <button onClick={() => showToast("Game list is currently being expanded!")} className="hover:text-white transition-colors">Games</button>
+            <button onClick={() => showToast("Global Leaderboards are under construction.")} className="hover:text-white transition-colors">Leaderboards</button>
+            <button onClick={() => showToast("Created by a stress-free AI.")} className="hover:text-white transition-colors">About</button>
           </div>
-          <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-sm font-medium transition-colors border border-white/10">
-            Sign In
+          
+          <div className="hidden md:block">
+            <button 
+                onClick={() => showToast("User accounts coming in v2.0!")}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full text-sm font-medium transition-colors border border-white/10"
+            >
+                Sign In
+            </button>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="md:hidden p-2 text-gray-400 hover:text-white"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu size={24} />
           </button>
         </div>
       </header>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-[#0a0a0c]/95 backdrop-blur-xl animate-fade-in md:hidden">
+            <div className="flex flex-col h-full p-6">
+                <div className="flex justify-between items-center mb-8">
+                     <span className="text-xl font-bold text-white">Menu</span>
+                     <button 
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="p-2 bg-white/10 rounded-full text-white hover:bg-white/20"
+                     >
+                         <X size={24} />
+                     </button>
+                </div>
+                
+                <nav className="flex flex-col gap-4 text-lg font-medium">
+                    <button 
+                        onClick={() => showToast("Game list is currently being expanded!")} 
+                        className="text-left py-4 border-b border-white/10 text-gray-300 hover:text-white"
+                    >
+                        Games
+                    </button>
+                    <button 
+                        onClick={() => showToast("Global Leaderboards are under construction.")} 
+                        className="text-left py-4 border-b border-white/10 text-gray-300 hover:text-white"
+                    >
+                        Leaderboards
+                    </button>
+                    <button 
+                        onClick={() => showToast("Created by a stress-free AI.")} 
+                        className="text-left py-4 border-b border-white/10 text-gray-300 hover:text-white"
+                    >
+                        About
+                    </button>
+                    <button 
+                        onClick={() => showToast("User accounts coming in v2.0!")} 
+                        className="mt-4 w-full py-4 bg-purple-600 rounded-xl text-white font-bold hover:bg-purple-500"
+                    >
+                        Sign In
+                    </button>
+                </nav>
+            </div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
@@ -125,6 +234,7 @@ export default function App() {
             icon={<Flame size={32} />}
             tags={['Action', 'Roguelite', 'Survival']}
             onClick={setActiveGame}
+            onInactiveClick={() => {}}
             active={true}
           />
 
@@ -137,6 +247,7 @@ export default function App() {
             icon={<Sparkles size={32} />}
             tags={['Relaxing', 'Puzzle', 'Atmospheric']}
             onClick={setActiveGame}
+            onInactiveClick={() => showToast("Cosmic Zen Garden is still growing...")}
             active={false}
           />
 
@@ -149,6 +260,7 @@ export default function App() {
             icon={<Clock size={32} />}
             tags={['Casual', 'Clicker', 'Satisfying']}
             onClick={setActiveGame}
+            onInactiveClick={() => showToast("We're still inflating the bubbles...")}
             active={false}
           />
         </div>

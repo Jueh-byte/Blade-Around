@@ -75,7 +75,8 @@ export default function JiumozhiGame({ onExit }: JiumozhiGameProps) {
   const xpPercent = Math.min(100, (stats.xp / (stats.level * 100)) * 100);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gray-900 text-white font-sans">
+    // Added 'touch-none' and 'overscroll-none' (via custom class game-mode) here to lock scrolling ONLY within the game
+    <div className="relative w-full h-screen overflow-hidden bg-gray-900 text-white font-sans touch-none overscroll-none game-mode">
       
       {/* Background Music */}
       <audio ref={audioRef} loop src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" />
